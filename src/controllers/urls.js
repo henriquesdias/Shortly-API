@@ -10,8 +10,8 @@ async function postUrl(req, res) {
     const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz1234567890", 10);
     const shortUrl = nanoid(9);
     await connection.query(
-      'INSERT INTO urls ("shortUrl", url, "userId") VALUES ($1, $2, $3)',
-      [shortUrl, url, userId]
+      'INSERT INTO urls ("shortUrl", url, "userId", "visitCount") VALUES ($1, $2, $3, $4)',
+      [shortUrl, url, userId, 0]
     );
     res.status(201).send({ shortUrl });
   } catch (error) {
