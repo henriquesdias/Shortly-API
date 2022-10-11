@@ -6,8 +6,12 @@ const userSchema = joi.object({
   password: joi.string().required().trim(),
   confirmPassword: joi.ref("password"),
 });
+const loginSchema = joi.object({
+  email: joi.string().email().required().trim(),
+  password: joi.string().required().trim(),
+});
 
-function validateUsers(req, res, next) {
+function validateUser(req, res, next) {
   const { name, email, password, confirmPassword } = req.body;
   const validate = userSchema.validate(
     {
@@ -24,5 +28,20 @@ function validateUsers(req, res, next) {
   res.locals.body = { name, email, password };
   next();
 }
+function validateSignIn(req, res, next) {
+  const { email, password } = req.body;
+  const validate = loginSchema.validate(
+    {
+      email,
+      password,
+    },
+    { abortEarly: false }
+  );
+  if (validate.error) {
+    return res.status(422).send(validate.error.details.map((e) => e.message));
+  }
+  res.locals.body = { email, password };
+  next();
+}
 
-export { validateUsers };
+export { validateUser, validateSignIn };
