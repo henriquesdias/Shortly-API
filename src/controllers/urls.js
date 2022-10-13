@@ -53,4 +53,24 @@ async function redirectToUrl(req, res) {
     res.status(500).send(error.message);
   }
 }
-export { postUrl, getUrlById, redirectToUrl };
+async function deleteUrl(req, res) {
+  const { id } = req.params;
+  const { userId } = res.locals.userId;
+  try {
+    const url = await connection.query("SELECT * FROM urls WHERE id = $1", [
+      id,
+    ]);
+    if (url.rowCount === 0) {
+      return res.sendStatus(404);
+    }
+    if (url.rows[0].userId !== userId) {
+      return res.sendStatus(401);
+    }
+    await connection.query("DELETE FROM urls WHERE id = $1", [id]);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+  return;
+}
+export { postUrl, getUrlById, redirectToUrl, deleteUrl };
