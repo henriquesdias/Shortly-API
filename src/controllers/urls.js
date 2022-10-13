@@ -73,4 +73,24 @@ async function deleteUrl(req, res) {
   }
   return;
 }
-export { postUrl, getUrlById, redirectToUrl, deleteUrl };
+async function getUrlsFromASingleUser(req, res) {
+  return;
+}
+async function getRanking(req, res) {
+  try {
+    const ranking = await connection.query(
+      'SELECT "userId" AS id, users.name,COUNT(url) AS "linksCount",SUM("visitCount") AS "visitCount" FROM urls JOIN users ON users.id = urls."userId"GROUP BY "userId", users.name ORDER BY "visitCount" DESC LIMIT 10;'
+    );
+    res.status(200).send(ranking.rows);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+export {
+  postUrl,
+  getUrlById,
+  redirectToUrl,
+  deleteUrl,
+  getUrlsFromASingleUser,
+  getRanking,
+};
