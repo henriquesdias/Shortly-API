@@ -74,6 +74,26 @@ async function deleteUrl(req, res) {
   return;
 }
 async function getUrlsFromASingleUser(req, res) {
+  const { userId } = res.locals.userId;
+  try {
+    const user = await connection.query(
+      'SELECT users.id, users.name, SUM("visitCount") AS "visitCount" FROM users JOIN urls ON users.id = urls."userId"WHERE users.id = $1 GROUP BY users.id;',
+      [userId]
+    );
+    const urls = await connection.query(
+      'SELECT id, "shortUrl", url, "visitCount" FROM urls WHERE "userId" = $1;',
+      [userId]
+    );
+    const allUrls = {
+      id: user.rows[0].id,
+      name: user.rows[0].name,
+      visitCount: user.rows[0].visitCount,
+      shortenedUrls: [...urls.rows],
+    };
+    res.status(200).send(allUrls);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
   return;
 }
 async function getRanking(req, res) {
