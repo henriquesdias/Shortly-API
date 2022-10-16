@@ -1,10 +1,9 @@
-import { nanoid, customAlphabet } from "nanoid";
+import { customAlphabet } from "nanoid";
 
 import connection from "../database/postgres.js";
 
 async function postUrl(req, res) {
   const { url } = res.locals.body;
-  const { token } = res.locals.token;
   const { userId } = res.locals.userId;
   try {
     const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz1234567890", 10);
@@ -77,17 +76,24 @@ async function getUrlsFromASingleUser(req, res) {
   const { userId } = res.locals.userId;
   try {
     const user = await connection.query(
-      'SELECT users.id, users.name, SUM("visitCount") AS "visitCount" FROM users JOIN urls ON users.id = urls."userId"WHERE users.id = $1 GROUP BY users.id;',
+      "SELECT users.id, users.name FROM users WHERE users.id = $1;",
       [userId]
     );
     const urls = await connection.query(
       'SELECT id, "shortUrl", url, "visitCount" FROM urls WHERE "userId" = $1;',
       [userId]
     );
+    let allVisits = 0;
+    if (urls.rowCount !== 0) {
+      allVisits = urls.rows.reduce(
+        (total, value) => total + value.visitCount,
+        0
+      );
+    }
     const allUrls = {
       id: user.rows[0].id,
       name: user.rows[0].name,
-      visitCount: user.rows[0].visitCount,
+      visitCount: allVisits,
       shortenedUrls: [...urls.rows],
     };
     res.status(200).send(allUrls);
