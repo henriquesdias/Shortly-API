@@ -105,7 +105,7 @@ async function getUrlsFromASingleUser(req, res) {
 async function getRanking(req, res) {
   try {
     const ranking = await connection.query(
-      'SELECT users.id, users.name,COUNT(url) AS "linksCount",SUM("visitCount") AS "visitCount" FROM users LEFT JOIN urls ON users.id = urls."userId" GROUP BY users.id, users.name ORDER BY "visitCount" DESC LIMIT 10;'
+      'SELECT users.id, users.name,COUNT(url) AS "linksCount",SUM("visitCount") AS "visitCount" FROM users LEFT JOIN urls ON users.id = urls."userId" GROUP BY users.id ORDER BY "visitCount" DESC LIMIT 10;'
     );
     ranking.rows.forEach((e) => {
       if (e.visitCount === null) {

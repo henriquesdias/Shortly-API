@@ -4,7 +4,7 @@ const userSchema = joi.object({
   name: joi.string().required().trim(),
   email: joi.string().email().required().trim(),
   password: joi.string().required().trim(),
-  confirmPassword: joi.ref("password"),
+  confirmPassword: joi.string().valid(joi.ref("password")).required(),
 });
 const loginSchema = joi.object({
   email: joi.string().email().required().trim(),
